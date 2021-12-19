@@ -61,14 +61,18 @@ function App() {
             <header className="App-header">
             
               <Center
-              height={"100vh"}
-              width={"100vw"}
-              backgroundColor={"#282c34"}>
+              height={"100%"}
+              width={"100%"}
+              backgroundColor={"#282c34"}
+              >
                 <Flex flexDirection={"column"}>
-                <Center width={"100vw"} height={"20vh"}
-                color={"white"}
-                fontSize={"2rem"}
-
+                <Center 
+                  width={"100vw"}
+                  height={"100vh"}
+                  color={"white"}
+                  fontSize={"2rem"}
+                  
+                  
                 >
                 <Flex
                   flexDirection={"column"}
@@ -77,6 +81,14 @@ function App() {
                   height={"100%"}
                   width={"100%"}
                   >
+
+                  <Box>
+                    <Flex flexDirection={"column"} justifyContent={"center"} alignItems={"center"}>
+                    <Heading as={"h1"} size={"lg"} mb={4}>Off Your Chest</Heading>
+                    <Text width="100%" fontSize='lg'>Anonymously record a thought you want to get off your chest and get meaningful feedback</Text>
+                    </Flex>
+                  
+                  </Box>
 
                   <ButtonGroup spacing={"10"}
                   >
@@ -118,20 +130,23 @@ function App() {
               
                 <Center
                   
-                  height={"50vh"}
+                  height={"100vh"}
                   color={"white"}
+                  border={"2px solid lightblue"}                  
                   >
                 <Flex
+
                   width={"100%"}
                   height={"75%"}
                   flexDirection={"column"}
                   alignItems={"center"}
-                  justifyContent={"space-between"}>
+                  justifyContent={"space-between"}
+                  >
                   
                   <Box>
                     <Flex flexDirection={"column"} justifyContent={"center"} alignItems={"center"}>
-                    <Heading as={"h1"} size={"xl"} mb={4}>Analyze Text</Heading>
-                    <Text width="100%" fontSize='xl'>Generate information about the themes and emotions that a passage of text entails</Text>
+                    <Heading as={"h1"} size={"lg"} mb={4}>Analyze Text</Heading>
+                    <Text width="100%" fontSize='lg'>Generate information about the themes and emotions that a passage of text entails</Text>
                     </Flex>
                   
                   </Box>
