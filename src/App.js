@@ -9,9 +9,8 @@ import {
 import './App.css';
 import './utils/language'
 import {useState} from "react";
-import { ChakraProvider } from '@chakra-ui/react'
-import { MdFiberManualRecord, MdStopCircle, MdStop, MdLaunch } from "react-icons/md"
-
+import {ChakraProvider} from '@chakra-ui/react'
+import {MdFiberManualRecord, MdStopCircle, MdStop, MdLaunch} from "react-icons/md"
 
 
 let final_transcript = '';
@@ -175,7 +174,6 @@ function App() {
             </header>
         </div>
       </ChakraProvider>
-
     );
 }
 
