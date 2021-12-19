@@ -14,18 +14,32 @@
 }
 
 .App-header {
-  background-color: #282c34;
+  /* background-color: #393e49;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   font-size: calc(10px + 2vmin);
-  color: white;
+  color: white; */
 }
 
 .App-link {
   color: #61dafb;
+}
+
+textarea {
+  width: 50%;
+  height: 250px;
+  margin: auto;
+  display:block;
+  margin-bottom: 20px;
+  border: 1px solid #ddd;
+}
+
+progress{
+  margin: 0 10px;
+  margin-bottom: -3px;
 }
 
 @keyframes App-logo-spin {

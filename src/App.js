@@ -1,13 +1,18 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import {
-    Flex,
-    FormControl, FormLabel,
+    Flex, Box, Center, Button, ButtonGroup, Stack, Heading, Text,
+    FormControl, FormLabel, Textarea,
     Select,
+    Spacer,
 } from "@chakra-ui/react";
 import './App.css';
 import './utils/language'
 import {useState} from "react";
+import { ChakraProvider } from '@chakra-ui/react'
+import { MdFiberManualRecord, MdStopCircle, MdStop, MdLaunch } from "react-icons/md"
+
+
 
 let final_transcript = '';
 
@@ -41,24 +46,121 @@ function App() {
     }
 
     return (
-        <div className="App">
+      <ChakraProvider>
+        <head>
+          <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.7.3/p5.min.js"></script>
+          <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.7.3/addons/p5.dom.min.js"></script>
+          <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.7.3/addons/p5.sound.min.js"></script>
+          <script src="https://ibm-nlu.glitch.me/nlu.js"></script>
+          <meta charset="utf-8" />
+
+        </head>
+          <div className="App">
+          <script src="sketch.js"></script>
+
             <header className="App-header">
-                <Flex
-                    direction="column"
-                    minH="100vh"
-                    align="center"
-                    justify={"center"}
-                    pt={{sm: "120px", md: "75px"}}
+            
+              <Center
+              height={"100vh"}
+              width={"100vw"}
+              backgroundColor={"#282c34"}>
+                <Flex flexDirection={"column"}>
+                <Center width={"100vw"} height={"20vh"}
+                color={"white"}
+                fontSize={"2rem"}
+
                 >
-                    <button onClick={renderSpeech}>Press to Talk</button>
+                <Flex
+                  flexDirection={"column"}
+                  justifyContent={"space-evenly"}
+                  alignItems={"center"}
+                  height={"100%"}
+                  width={"100%"}
+                  >
+
+                  <ButtonGroup spacing={"10"}
+                  >
+                    <Button 
+                        colorScheme="green"
+                        variant={"solid"}
+                        padding={"10px"}
+                        onClick={renderSpeech}
+                        rightIcon={<MdFiberManualRecord/>}
+                        width={"200px"}
+                        height={"72px"}
+                        fontSize={"1.5rem"}
+                        >
+                          Record
+                        </Button>
+                        
+                        
+                        <Button
+                        colorScheme={"red"}
+                        padding={"10px"}
+                        variant={"solid"}
+                        rightIcon={<MdStopCircle/>}
+                        width={"200px"}
+                        height={"72px"}
+                        fontSize={"1.5rem"}
+                        >
+                          Stop
+                        </Button>
+                  </ButtonGroup>
+
+                  
 
                     {/*<span id="final" className="text-black">transcript</span>*/}
                     <span id="interim" className="text-secondary">{transcript}</span>
-
-
                 </Flex>
+
+
+                </Center>
+              
+                <Center
+                  
+                  height={"50vh"}
+                  color={"white"}
+                  >
+                <Flex
+                  width={"100%"}
+                  height={"75%"}
+                  flexDirection={"column"}
+                  alignItems={"center"}
+                  justifyContent={"space-between"}>
+                  
+                  <Box>
+                    <Flex flexDirection={"column"} justifyContent={"center"} alignItems={"center"}>
+                    <Heading as={"h1"} size={"xl"} mb={4}>Analyze Text</Heading>
+                    <Text width="100%" fontSize='xl'>Generate information about the themes and emotions that a passage of text entails</Text>
+                    </Flex>
+                  
+                  </Box>
+                  <Textarea 
+                    width={"50%"}
+                    height={"250px"}
+                    backgroundColor={"#E9ECF1"}
+                    placeholder='<Text to analyze>'></Textarea>
+                  <Button
+                    colorScheme={"blue"} 
+                    width={"244px"}
+                    height={"72px"}
+                    fontSize={"1.5rem"}
+                    rightIcon={<MdLaunch/>}
+                  >
+                    Launch Analysis
+                  </Button>
+                </Flex>
+
+                </Center>
+                </Flex>
+              
+              </Center>
+              
+
             </header>
         </div>
+      </ChakraProvider>
+
     );
 }
 
