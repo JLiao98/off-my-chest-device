@@ -63,7 +63,7 @@ function App() {
               <Center
               height={"100%"}
               width={"100%"}
-              backgroundColor={"#282c34"}
+              className="gradient"
               >
                 <Flex flexDirection={"column"}>
                 <Center 
@@ -132,7 +132,7 @@ function App() {
                   
                   height={"100vh"}
                   color={"white"}
-                  border={"2px solid lightblue"}                  
+                  //border={"2px solid lightblue"}                  
                   >
                 <Flex
 
