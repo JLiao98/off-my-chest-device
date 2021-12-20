@@ -229,9 +229,9 @@ function App() {
     }
 
     const renderButton = () => {
-        if (showBtn) {
+        if (!showBtn) {
             return (
-                <ButtonGroup spacing={"10"}
+                <ButtonGroup spacing={"10"} className='hidden'
                 >
                     <Button
                         colorScheme="green"
@@ -258,14 +258,50 @@ function App() {
                         fontSize={"1.5rem"}
                         onClick={stopSpeech}
                     >
-                        <ReactRevealText show={show}>
-                            Stop
+                        <ReactRevealText show={show}>   
+                          Stop
                         </ReactRevealText>
                     </Button>
                 </ButtonGroup>
 
 
             )
+        }
+        else{
+          return(
+            <ButtonGroup spacing={"10"}
+            >
+                <Button
+                    colorScheme="green"
+                    variant={"solid"}
+                    padding={"10px"}
+                    onClick={renderSpeech}
+                    rightIcon={<MdFiberManualRecord/>}
+                    width={"150px"}
+                    height={"60px"}
+                    fontSize={"1.5rem"}
+                >
+                    <ReactRevealText show={show}>
+                        Record
+                    </ReactRevealText>
+                </Button>
+
+                <Button
+                    colorScheme={"red"}
+                    padding={"10px"}
+                    variant={"solid"}
+                    rightIcon={<MdStopCircle/>}
+                    width={"150px"}
+                    height={"60px"}
+                    fontSize={"1.5rem"}
+                    onClick={stopSpeech}
+                >
+                    <ReactRevealText show={show}>   
+                      Stop
+                    </ReactRevealText>
+                </Button>
+            </ButtonGroup>
+          )
         }
 
     }
@@ -287,7 +323,8 @@ function App() {
                                 width={"100vw"}
                                 height={"100vh"}
                                 color={"white"}
-                                fontSize={"2rem"}
+                                fontSize={"1.5rem"}
+                                border={"2px solid white"}
                             >
                                 <Flex
                                     flexDirection={"column"}
@@ -295,17 +332,18 @@ function App() {
                                     alignItems={"center"}
                                     height={"100%"}
                                     width={"100%"}
+                                    border={"2px solid white"}
                                 >
                                     <Box>
                                         <Flex flexDirection={"column"} justifyContent={"center"} alignItems={"center"}>
 
-                                            <Heading as={"h1"} size={"3xl"} mb={4}>
+                                            <Heading as={"h1"} fontSize={"50px"} mb={6}>
                                                 <ReactRevealText show={show}>
                                                     Off Your Chest
                                                 </ReactRevealText>
                                             </Heading>
                                             <p></p>
-                                            <Heading as={"h1"} size={"lg"}>
+                                            <Heading as={"h2"} fontSize={"28px"} fontWeight={"normal"}>
                                                 <ReactRevealText show={show}>
                                                     Hello, this is a safe place to tell your story
                                                 </ReactRevealText>
@@ -319,7 +357,8 @@ function App() {
 
                                     {/*<span id="final" className="text-black">transcript</span>*/}
                                     <span id="interim"
-                                          className="text-secondary">
+                                          className="text-secondary"
+                                          >
                                         <ReactRevealText show={show}>
                                                {transcript ? transcript : '...'}
                                             </ReactRevealText>
@@ -334,6 +373,7 @@ function App() {
                                 height={"100vh"}
                                 color={"white"}
                                 //border={"2px solid lightblue"}
+                                id="pg2"
                             >
                                 <Flex
 
