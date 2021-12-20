@@ -324,7 +324,7 @@ function App() {
                                 height={"100vh"}
                                 color={"white"}
                                 fontSize={"1.5rem"}
-                                border={"2px solid white"}
+                                //border={"2px solid white"}
                             >
                                 <Flex
                                     flexDirection={"column"}
@@ -332,7 +332,7 @@ function App() {
                                     alignItems={"center"}
                                     height={"100%"}
                                     width={"100%"}
-                                    border={"2px solid white"}
+                                    //border={"2px solid white"}
                                 >
                                     <Box>
                                         <Flex flexDirection={"column"} justifyContent={"center"} alignItems={"center"}>
