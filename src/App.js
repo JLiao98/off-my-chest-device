@@ -34,11 +34,6 @@ let pid = ''
 
 function App() {
 
-    const secondPageRef = useRef()
-
-    function handleBackClick(){
-      secondPageRef.current.scrollIntoView({ behavior: 'smooth' })
-    }
 
     let SpeechRecognition = window.webkitSpeechRecognition || window.SpeechRecognition
     let recognition = new SpeechRecognition()
@@ -55,6 +50,8 @@ function App() {
     const onClose = () => setIsOpen(false)
     const cancelRef = useRef()
     const toast = useToast()
+    let secondPageRef = useRef()
+
 
 
     useEffect(() => {
@@ -70,6 +67,7 @@ function App() {
         recording = true
         recognition.start()
 
+        chunks = []
         final_transcript = ''
         setFinalTranscript(final_transcript)
 
@@ -116,7 +114,7 @@ function App() {
         setTranscript("You have stopped the recording...")
         console.log(mediaRecorder.state);
         console.log("recorder stopped");
-        chunks = []
+        secondPageRef.current.scrollIntoView({ behavior: 'smooth' })
     }
 
     function nlu(params, callback = console.log) {
@@ -376,7 +374,7 @@ function App() {
                     height={"60px"}
                     fontSize={"1.5rem"}
                     onClick={stopSpeech}
-                    onClick={handleBackClick}
+                    // onClick={handleBackClick}
                 >
                        
                       Stop
@@ -450,7 +448,7 @@ function App() {
                         >
                             <Flex
                                 width={"100%"}
-                                height={"100vh"}
+                                height={"75%"}
                                 color={"white"}
                                 //border={"2px solid lightblue"}
                                 ref={secondPageRef}
