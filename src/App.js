@@ -1,11 +1,19 @@
-import React, {useEffect} from 'react';
+import React, {useEffect, useRef} from 'react';
 import ReactDOM from 'react-dom';
 import {
     Flex, Box, Center, Button, ButtonGroup, Stack, Heading, Text,
     FormControl, FormLabel, Textarea,
     Select,
     Spacer,
+    AlertDialog,
+    AlertDialogBody,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogContent,
+    AlertDialogOverlay, useToast
 } from "@chakra-ui/react";
+
+
 import './App.css';
 import './utils/language'
 import {useState} from "react";
@@ -24,46 +32,6 @@ let audio_url = ''
 let response
 let pid = ''
 
-function nlu(params, callback = console.log) {
-    if (typeof params === 'string') params = {text: params}
-
-    // https://console.bluemix.net/apidocs/natural-language-understanding?language=node#text-analytics-features
-    params.features = params.features || {
-        categories: {},
-        concepts: {},
-        emotion: {document: true},
-        entities: {mentions: true, emotion: true, sentiment: true},
-        keywords: {emotion: true, sentiment: true},
-        relations: {},
-        sentiment: {document: true},
-        semantic_roles: {},
-        syntax: {
-            sentences: true,
-            tokens: {
-                lemma: true,
-                part_of_speech: true
-            }
-        }
-    }
-
-    if (params.url)
-        params.features.metadata = {}
-
-    const req = new Request('https://ibm-nlu.glitch.me/', {
-        method: 'POST',
-        mode: 'cors',
-        headers: new Headers({
-            'Content-Type': 'application/json'
-        }),
-        body: JSON.stringify(params)
-    })
-
-    fetch(req)
-        .then(response => response.json())
-        .then(json => callback(json))
-        .catch(e => console.log(e))
-}
-
 function App() {
 
     let SpeechRecognition = window.webkitSpeechRecognition || window.SpeechRecognition
@@ -77,6 +45,11 @@ function App() {
     const [finalTranscript, setFinalTranscript] = useState("<Text to analyze>")
     const [show, setShow] = useState(false)
     const [showBtn, setShowBtn] = useState(false)
+    const [isOpen, setIsOpen] = useState(false)
+    const onClose = () => setIsOpen(false)
+    const cancelRef = useRef()
+    const toast = useToast()
+
 
     useEffect(() => {
         setTimeout(() => {
@@ -86,7 +59,6 @@ function App() {
             setShowBtn(true)
         }, 3500)
     }, []);
-
 
     const renderSpeech = () => {
         recording = true
@@ -141,73 +113,173 @@ function App() {
         chunks = []
     }
 
+    function nlu(params, callback = console.log) {
+        if (typeof params === 'string') params = {text: params}
+
+        // https://console.bluemix.net/apidocs/natural-language-understanding?language=node#text-analytics-features
+        params.features = params.features || {
+            categories: {},
+            concepts: {},
+            emotion: {document: true},
+            entities: {mentions: true, emotion: true, sentiment: true},
+            keywords: {emotion: true, sentiment: true},
+            relations: {},
+            sentiment: {document: true},
+            semantic_roles: {},
+            syntax: {
+                sentences: true,
+                tokens: {
+                    lemma: true,
+                    part_of_speech: true
+                }
+            }
+        }
+
+        if (params.url)
+            params.features.metadata = {}
+
+        const req = new Request('https://ibm-nlu.glitch.me/', {
+            method: 'POST',
+            mode: 'cors',
+            headers: new Headers({
+                'Content-Type': 'application/json'
+            }),
+            body: JSON.stringify(params)
+        })
+
+        fetch(req)
+            .then(response => response.json())
+            .then(json => callback(json))
+            .catch(e => console.log(e))
+    }
+
     const handleNLU = () => {
         nlu(final_transcript, nluComplete)
     }
 
     const handleAddPost = () => {
-
-        // ==== SENTIMENT ANALYSIS ====
-        let sentiment = response.result.sentiment.document;
-        console.log(sentiment)
-
-        let positiveness = Math.round(sentiment.score * 100) + "%"
-        console.log(positiveness)
-
-
-        // ==== CATEGORIES ANALYSIS ====
-        let category = response.result.categories[0];
-        console.log(category)
-
-
-        // ==== EMOTION ANALYSIS ====
-        if (response.result.emotion) { // only with English texts
-            let emotion = response.result.emotion.document.emotion;
-            console.log(emotion)
-        }
-
-        let level1, level2, level3, level4, level5
-        let cat = category.label.split('/')
-        for (let i = 1; i < 6; i++) {
-            // eslint-disable-next-line default-case
-            switch (i) {
-                case 1:
-                    level1 = cat[1]
-                    break
-                case 2:
-                    level2 = cat[2]
-                    break
-                case 3:
-                    level3 = cat[3]
-                    break
-                case 4:
-                    level4 = cat[4]
-                    break
-                case 5:
-                    level5 = cat[5]
-                    break
+        try {
+            let category = response.result.categories[0]
+            let level1, level2, level3, level4, level5
+            let cat = category.label.split('/')
+            for (let i = 1; i < 6; i++) {
+                // eslint-disable-next-line default-case
+                switch (i) {
+                    case 1:
+                        level1 = cat[1]
+                        break
+                    case 2:
+                        level2 = cat[2]
+                        break
+                    case 3:
+                        level3 = cat[3]
+                        break
+                    case 4:
+                        level4 = cat[4]
+                        break
+                    case 5:
+                        level5 = cat[5]
+                        break
+                }
             }
+
+            const blob = new Blob(chunks, {type: "audio/ogg; codecs=opus"})
+
+            pid = nanoid()
+
+            console.log(category.label)
+            uploadAudio(category.label, pid, blob).then(url => {
+                audio_url = url
+                addPost(pid, audio_url, final_transcript, level1, level2, level3, level4, level5, response).then(r => {
+                    console.log(r)
+                })
+            })
+
+            onClose()
+
+            toast({
+                title: 'Post',
+                description: "Your story has been posted",
+                status: 'success',
+                duration: 2000,
+                isClosable: true,
+            })
+
+        } catch (err) {
+            toast({
+                title: 'Post',
+                description: "Add Post Failed",
+                status: 'error',
+                duration: 2000,
+                isClosable: true,
+            })
         }
-        const blob = new Blob(chunks, {type: "audio/ogg; codecs=opus"})
 
-        pid = nanoid()
+    }
 
-        uploadAudio(category.label, pid, blob).then(url => {
-            audio_url = url
-        })
+    const handleNLUResults = () => {
+        setIsOpen(true)
+    }
 
-        addPost(pid, audio_url, final_transcript, level1, level2, level3, level4, level5, response).then(r => {
-            console.log(r)
-        })
+    const generateResults = () => {
+        if (response) {
+            console.log(response)
+            let sentiment, positiveness, category, emotion
+
+            // ==== SENTIMENT ANALYSIS ====
+            sentiment = response.result.sentiment.document;
+
+            let emoji
+            if (sentiment.label === "positive")
+                emoji = "😊"
+            else if (sentiment.label === "neutral")
+                emoji = "😐"
+            else
+                emoji = "🙁"
+
+            positiveness = Math.round(sentiment.score * 100) + "%"
+
+            // ==== CATEGORIES ANALYSIS ====
+            category = response.result.categories[0];
+
+
+            // ==== EMOTION ANALYSIS ====
+            if (response.result.emotion) { // only with English texts
+                let emo = response.result.emotion.document.emotion;
+                emotion = JSON.stringify(emo)
+            }
+            return (
+                <Box>
+                    <Flex flexDirection={"column"}>
+                        <span>The sentiment is: {sentiment.label}</span>
+                        <span>The positiveness is: {positiveness} {emoji}</span>
+                        <span>This speech is about: {category.label}</span>
+                        <span>Keywords: {response.result.keywords.map((e) => {
+                            return e.text + ', '
+                        })}</span>
+                        <span>Emotions: {emotion}</span>
+                    </Flex>
+                </Box>
+            )
+        }
+
     }
 
     const nluComplete = (result) => {
         response = result
-        console.log(response)
-        handleAddPost()
+        if (response.error) {
+            toast({
+                title: 'NLU',
+                description: "NLU Analysis Failed",
+                status: 'error',
+                duration: 2000,
+                isClosable: true,
+            })
+        } else {
+            handleNLUResults()
+        }
 
     }
-
 
     recognition.onresult = (event) => {
 
@@ -272,116 +344,139 @@ function App() {
 
 
     return (
-        <ChakraProvider>
-            <div className="App">
-                <header className="App-header">
-
-
-                    <Center
-                        height={"100%"}
-                        width={"100%"}
-                        className="gradient"
-                    >
-                        <Flex flexDirection={"column"}>
-                            <Center
-                                width={"100vw"}
-                                height={"100vh"}
-                                color={"white"}
-                                fontSize={"2rem"}
+        <div className="App">
+            <header className="App-header">
+                <Center
+                    height={"100%"}
+                    width={"100%"}
+                    className="gradient"
+                >
+                    <Flex flexDirection={"column"}>
+                        <Center
+                            width={"100vw"}
+                            height={"100vh"}
+                            color={"white"}
+                            fontSize={"2rem"}
+                        >
+                            <Flex
+                                flexDirection={"column"}
+                                justifyContent={"space-evenly"}
+                                alignItems={"center"}
+                                height={"100%"}
+                                width={"100%"}
                             >
-                                <Flex
-                                    flexDirection={"column"}
-                                    justifyContent={"space-evenly"}
-                                    alignItems={"center"}
-                                    height={"100%"}
-                                    width={"100%"}
-                                >
-                                    <Box>
-                                        <Flex flexDirection={"column"} justifyContent={"center"} alignItems={"center"}>
+                                <Box>
+                                    <Flex flexDirection={"column"} justifyContent={"center"} alignItems={"center"}>
 
-                                            <Heading as={"h1"} size={"3xl"} mb={4}>
-                                                <ReactRevealText show={show}>
-                                                    Off Your Chest
-                                                </ReactRevealText>
-                                            </Heading>
-                                            <p></p>
-                                            <Heading as={"h1"} size={"lg"}>
-                                                <ReactRevealText show={show}>
-                                                    Hello, this is a safe place to tell your story
-                                                </ReactRevealText>
+                                        <Heading as={"h1"} size={"3xl"} mb={4}>
+                                            <ReactRevealText show={show}>
+                                                Off Your Chest
+                                            </ReactRevealText>
+                                        </Heading>
+                                        <Heading as={"h1"} size={"lg"}>
+                                            <ReactRevealText show={show}>
+                                                Hello, this is a safe place to tell your story
+                                            </ReactRevealText>
 
-                                            </Heading>
-                                        </Flex>
+                                        </Heading>
+                                    </Flex>
 
-                                    </Box>
+                                </Box>
 
-                                    {renderButton()}
+                                {renderButton()}
 
-                                    {/*<span id="final" className="text-black">transcript</span>*/}
-                                    <span id="interim"
-                                          className="text-secondary">
+                                {/*<span id="final" className="text-black">transcript</span>*/}
+                                <span id="interim"
+                                      className="text-secondary">
                                         <ReactRevealText show={show}>
                                                {transcript ? transcript : '...'}
                                             </ReactRevealText>
                                     </span>
-                                </Flex>
+                            </Flex>
 
 
-                            </Center>
+                        </Center>
 
-                            <Center
+                        <Center
 
-                                height={"100vh"}
-                                color={"white"}
-                                //border={"2px solid lightblue"}
+                            height={"100vh"}
+                            color={"white"}
+                            //border={"2px solid lightblue"}
+                        >
+                            <Flex
+
+                                width={"100%"}
+                                height={"75%"}
+                                flexDirection={"column"}
+                                alignItems={"center"}
+                                justifyContent={"space-between"}
                             >
-                                <Flex
 
-                                    width={"100%"}
-                                    height={"75%"}
-                                    flexDirection={"column"}
-                                    alignItems={"center"}
-                                    justifyContent={"space-between"}
+                                <Box>
+                                    <Flex flexDirection={"column"} justifyContent={"center"} alignItems={"center"}>
+                                        <Heading as={"h1"} size={"2xl"} mb={4}>Analyze Text</Heading>
+                                        <Text width="100%" fontSize='2xl'>Utilize NLP to analyze the topics and
+                                            emotions that the passage entails</Text>
+                                    </Flex>
+
+                                </Box>
+                                <Textarea
+                                    width={"50%"}
+                                    height={"250px"}
+                                    value={finalTranscript}
+                                    backgroundColor={"#E9ECF1"}
+                                    textColor={"black"}
+                                    isReadOnly={true}
+                                />
+                                <Button
+                                    colorScheme={"blue"}
+                                    width={"244px"}
+                                    color={"white"}
+                                    height={"72px"}
+                                    fontSize={"1.5rem"}
+                                    rightIcon={<MdLaunch/>}
+                                    onClick={handleNLU}
                                 >
+                                    Launch Analysis
+                                </Button>
 
-                                    <Box>
-                                        <Flex flexDirection={"column"} justifyContent={"center"} alignItems={"center"}>
-                                            <Heading as={"h1"} size={"2xl"} mb={4}>Analyze Text</Heading>
-                                            <Text width="100%" fontSize='2xl'>Utilize NLP to analyze the topics and
-                                                emotions that the passage entails</Text>
-                                        </Flex>
+                                <AlertDialog
+                                    isOpen={isOpen}
+                                    leastDestructiveRef={cancelRef}
+                                    onClose={onClose}
+                                >
+                                    <AlertDialogOverlay>
+                                        <AlertDialogContent>
+                                            <AlertDialogHeader fontSize='lg' fontWeight='bold'>
+                                                Natural Language Understanding
+                                            </AlertDialogHeader>
 
-                                    </Box>
-                                    <Textarea
-                                        width={"50%"}
-                                        height={"250px"}
-                                        value={finalTranscript}
-                                        backgroundColor={"#E9ECF1"}
-                                        textColor={"black"}
-                                        isReadOnly={true}
-                                    />
-                                    <Button
-                                        colorScheme={"blue"}
-                                        width={"244px"}
-                                        color={"white"}
-                                        height={"72px"}
-                                        fontSize={"1.5rem"}
-                                        rightIcon={<MdLaunch/>}
-                                        onClick={handleNLU}
-                                    >
-                                        Launch Analysis
-                                    </Button>
-                                </Flex>
+                                            <AlertDialogBody>
+                                                {generateResults()}
+                                            </AlertDialogBody>
 
-                            </Center>
-                        </Flex>
+                                            <AlertDialogFooter>
+                                                <Button colorScheme={"red"} ref={cancelRef} onClick={onClose}>
+                                                    Cancel
+                                                </Button>
+                                                <Button colorScheme='green' onClick={handleAddPost} ml={3}>
+                                                    Post Story
+                                                </Button>
+                                            </AlertDialogFooter>
+                                        </AlertDialogContent>
+                                    </AlertDialogOverlay>
+                                </AlertDialog>
 
-                    </Center>
+                            </Flex>
+
+                        </Center>
+                    </Flex>
+
+                </Center>
 
 
-                </header>
-            </div>
-        </ChakraProvider>
+            </header>
+        </div>
     );
 }
 
