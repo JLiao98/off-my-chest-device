@@ -32,17 +32,18 @@ const db = getFirestore(app);
 const storage = getStorage(app);
 
 
-const addPost = async (pid, audio_link, transcript, level1, level2, level3, level4, nlu_analysis) => {
+const addPost = async (pid, audio_link, transcript, level1, level2, level3, level4, level5, nlu_analysis) => {
     try {
         await setDoc(doc(db, "posts", pid), {
             pid: pid,
-            audio_file: audio_link,
+            audio_file: audio_link ? audio_link : '',
             transcript: transcript,
-            level1: level1,
-            level2: level2,
-            level3: level3,
-            level4: level4,
-            nlu_analysis: nlu_analysis
+            level1: level1 ? level1 : '',
+            level2: level2 ? level2 : '',
+            level3: level3 ? level3 : '',
+            level4: level4 ? level4 : '',
+            level5: level5 ? level5 : '',
+            nlu_analysis: nlu_analysis ? nlu_analysis : null
         })
         return pid
     } catch (err) {
@@ -52,7 +53,8 @@ const addPost = async (pid, audio_link, transcript, level1, level2, level3, leve
 
 
 const uploadAudio = async (path, pid, file) => {
-    const storageRef = ref(storage, path + pid + '.ogg');
+    const storageRef = ref(storage, path + '/' + pid + '.ogg');
+
     //const uploadTask = uploadBytesResumable(storageRef, file);
 
     let result = await uploadBytes(storageRef, file)
