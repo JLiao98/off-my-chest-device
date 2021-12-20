@@ -17,7 +17,6 @@ import {
 import './App.css';
 import './utils/language'
 import {useState} from "react";
-import {ChakraProvider} from '@chakra-ui/react'
 import {MdFiberManualRecord, MdStopCircle, MdStop, MdLaunch} from "react-icons/md"
 import {addPost, uploadAudio} from "./utils/firebase";
 import {nanoid} from "nanoid";
@@ -51,7 +50,6 @@ function App() {
     const cancelRef = useRef()
     const toast = useToast()
     let secondPageRef = useRef()
-
 
 
     useEffect(() => {
@@ -114,7 +112,7 @@ function App() {
         setTranscript("You have stopped the recording...")
         console.log(mediaRecorder.state);
         console.log("recorder stopped");
-        secondPageRef.current.scrollIntoView({ behavior: 'smooth' })
+        secondPageRef.current.scrollIntoView({behavior: 'smooth'})
     }
 
     function nlu(params, callback = console.log) {
@@ -305,7 +303,7 @@ function App() {
     }
 
     const renderButton = () => {
-      
+
         if (!showBtn) {
             return (
                 <ButtonGroup spacing={"10"} className='hidden'
@@ -320,9 +318,9 @@ function App() {
                         height={"60px"}
                         fontSize={"1.5rem"}
                     >
-                        
-                            Record
-                        
+
+                        Record
+
                     </Button>
 
                     <Button
@@ -334,54 +332,53 @@ function App() {
                         height={"60px"}
                         fontSize={"1.5rem"}
                         onClick={stopSpeech}
-                        
-                        
+
+
                     >
-                          
-                          Stop
-                        
+
+                        Stop
+
                     </Button>
                 </ButtonGroup>
 
 
             )
-        }
-        else{
-          return(
-            <ButtonGroup spacing={"10"} className='fade-in'
-            >
-                <Button
-                    colorScheme="green"
-                    variant={"solid"}
-                    padding={"10px"}
-                    onClick={renderSpeech}
-                    rightIcon={<MdFiberManualRecord/>}
-                    width={"150px"}
-                    height={"60px"}
-                    fontSize={"1.5rem"}
+        } else {
+            return (
+                <ButtonGroup spacing={"10"} className='fade-in'
                 >
-                    
-                        Record
-                    
-                </Button>
+                    <Button
+                        colorScheme="green"
+                        variant={"solid"}
+                        padding={"10px"}
+                        onClick={renderSpeech}
+                        rightIcon={<MdFiberManualRecord/>}
+                        width={"150px"}
+                        height={"60px"}
+                        fontSize={"1.5rem"}
+                    >
 
-                <Button
-                    colorScheme={"red"}
-                    padding={"10px"}
-                    variant={"solid"}
-                    rightIcon={<MdStopCircle/>}
-                    width={"150px"}
-                    height={"60px"}
-                    fontSize={"1.5rem"}
-                    onClick={stopSpeech}
-                    // onClick={handleBackClick}
-                >
-                       
-                      Stop
-                   
-                </Button>
-            </ButtonGroup>
-          )
+                        Record
+
+                    </Button>
+
+                    <Button
+                        colorScheme={"red"}
+                        padding={"10px"}
+                        variant={"solid"}
+                        rightIcon={<MdStopCircle/>}
+                        width={"150px"}
+                        height={"60px"}
+                        fontSize={"1.5rem"}
+                        onClick={stopSpeech}
+                        // onClick={handleBackClick}
+                    >
+
+                        Stop
+
+                    </Button>
+                </ButtonGroup>
+            )
         }
 
     }
@@ -412,7 +409,7 @@ function App() {
                                 <Box>
                                     <Flex flexDirection={"column"} justifyContent={"center"} alignItems={"center"}>
 
-                                        <Heading as={"h1"} fontSize={"48px"} mb={4}>
+                                        <Heading as={"h1"} fontSize={"52px"} mb={4}>
                                             <ReactRevealText show={show}>
                                                 Off Your Chest
                                             </ReactRevealText>
@@ -428,13 +425,11 @@ function App() {
 
                                 {renderButton()}
 
-                                {/*<span id="final" className="text-black">transcript</span>*/}
-                                <span id="interim"
-                                      className="text-secondary">
-                                        <ReactRevealText show={show}>
-                                               {transcript ? transcript : '...'}
-                                            </ReactRevealText>
-                                    </span>
+                                <span>
+                                    <ReactRevealText show={show}>
+                                        {transcript ? transcript : '...'}
+                                    </ReactRevealText>
+                                </span>
                             </Flex>
 
 
