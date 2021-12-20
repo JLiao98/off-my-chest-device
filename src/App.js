@@ -22,27 +22,122 @@ import {MdFiberManualRecord, MdStopCircle, MdStop, MdLaunch} from "react-icons/m
 import {addPost, uploadAudio} from "./utils/firebase";
 import {nanoid} from "nanoid";
 import ReactRevealText from "react-reveal-text/lib/ReactRevealText";
+// import {Vocal} from '@untemps/vocal'
+import SpeechRecognition, {useSpeechRecognition} from 'react-speech-recognition'
+import {createSpeechlySpeechRecognition} from '@speechly/speech-recognition-polyfill';
+
+const appId = 'fbd8ec5c-1d7b-4e0c-a9b0-f3844f907dbf';
+const SpeechlySpeechRecognition = createSpeechlySpeechRecognition(appId);
+SpeechRecognition.applyPolyfill(SpeechlySpeechRecognition);
 
 
 let final_transcript = ''
-let recording = false
+// let recording = false
 let chunks = []
 let mediaRecorder
 let audio_url = ''
 let response
 let pid = ''
 
+
 function App() {
+    // let SpeechRecognition = window.webkitSpeechRecognition || window.SpeechRecognition
+    // let recognition = new SpeechRecognition()
+
+    // Check whether SpeechRecognition, Permissions and MediaDevices interfaces are supported
+//     if (!Vocal.isSupported) {
+//         throw "Vocal is not supported"
+//         return;
+//     }
+//
+//     console.log("vocal")
+//
+// // Create a Vocal instance (see below for all available option properties)
+//     const options = {
+//         lang: 'en-US',
+//         continuous: true,
+//         interimResults: true,
+//     }
+//     const vocal = new Vocal(options)
+//
+//
+// // Subscribe to Vocal instance events (see below for all available events)
+//     vocal.addEventListener('speechstart', (event) => {
+//         console.log('Vocal starts recording')
+//         setTranscript('Vocal starts recording')
+//     })
+//     vocal.addEventListener('speechend', (event) => {
+//         console.log('Vocal stops recording')
+//         setTranscript('Vocal stops recording')
+//     })
+//     vocal.addEventListener('result', (event) => {
+//         console.log(event)
+//
+//         if (recording) {
+//             let interim_transcript = "";
+//
+//             for (let i = event.resultIndex; i < event.results.length; ++i) {
+//                 if (event.results[i].isFinal) {
+//                     final_transcript += event.results[i][0].transcript + '.';
+//                 } else {
+//                     interim_transcript += event.results[i][0].transcript;
+//                 }
+//
+//             }
+//             setTranscript(interim_transcript)
+//             setFinalTranscript(final_transcript)
+//         }
+//     })
+//     vocal.addEventListener('error', (error) => {
+//         console.log(error)
+//     })
 
 
-    let SpeechRecognition = window.webkitSpeechRecognition || window.SpeechRecognition
-    let recognition = new SpeechRecognition()
+    // try {
+    //
+    //     recognition.onresult = function (event) {
+    //         console.log(event)
+    //
+    //         if (recording) {
+    //             let interim_transcript = "";
+    //
+    //             for (let i = event.resultIndex; i < event.results.length; ++i) {
+    //                 if (event.results[i].isFinal) {
+    //                     final_transcript += event.results[i][0].transcript + '.';
+    //                 } else {
+    //                     interim_transcript += event.results[i][0].transcript;
+    //                 }
+    //
+    //             }
+    //             setTranscript(interim_transcript)
+    //             setFinalTranscript(final_transcript)
+    //         }
+    //
+    //     }
+    // } catch (err) {
+    //     console.log(err)
+    // }
 
-    recognition.lang = 'en-US'
-    recognition.continuous = true;
-    recognition.interimResults = true;
+    // recognition.lang = 'en-US'
+    // recognition.continuous = true;
+    // recognition.interimResults = true;
+    //
+    // console.log(recognition)
 
-    const [transcript, setTranscript] = useState("Please click Record to start recording...")
+    const {
+        transcript,
+        listening,
+        resetTranscript,
+        browserSupportsSpeechRecognition
+    } = useSpeechRecognition();
+    const startListening = () => SpeechRecognition.startListening({continuous: true})
+    const stopListening = () => SpeechRecognition.stopListening()
+
+    // if (!browserSupportsSpeechRecognition) {
+    //     return (<span>Browser doesn't support speech recognition.</span>)
+    // }
+
+    const [tip, setTip] = useState("Please click Record to start recording...")
     const [finalTranscript, setFinalTranscript] = useState("<Text to analyze>")
     const [show, setShow] = useState(false)
     const [showBtn, setShowBtn] = useState(false)
@@ -51,7 +146,6 @@ function App() {
     const cancelRef = useRef()
     const toast = useToast()
     let secondPageRef = useRef()
-
 
 
     useEffect(() => {
@@ -64,12 +158,17 @@ function App() {
     }, []);
 
     const renderSpeech = () => {
-        recording = true
-        recognition.start()
+        // recording = true
+        // recognition.start()
+        // vocal.start()
 
         chunks = []
+        resetTranscript()
         final_transcript = ''
         setFinalTranscript(final_transcript)
+        setTip("I'm listening to your story...")
+        console.log("start")
+        startListening()
 
         if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
             console.log("getUserMedia supported.");
@@ -108,13 +207,17 @@ function App() {
     }
 
     const stopSpeech = () => {
-        recording = false
-        recognition.stop()
-        mediaRecorder.stop();
-        setTranscript("You have stopped the recording...")
+        // recording = false
+        // recognition.stop()
+        // vocal.stop()
+        final_transcript = transcript.toLowerCase()
+        setFinalTranscript(transcript.toLowerCase())
+        stopListening()
+        mediaRecorder.stop()
+        setTip("You have stopped the recording...")
         console.log(mediaRecorder.state);
         console.log("recorder stopped");
-        secondPageRef.current.scrollIntoView({ behavior: 'smooth' })
+        secondPageRef.current.scrollIntoView({behavior: 'smooth'})
     }
 
     function nlu(params, callback = console.log) {
@@ -158,6 +261,8 @@ function App() {
     }
 
     const handleNLU = () => {
+        console.log(final_transcript)
+
         nlu(final_transcript, nluComplete)
     }
 
@@ -226,8 +331,7 @@ function App() {
     }
 
     const generateResults = () => {
-        if (response) {
-            console.log(response)
+        if (response && !listening) {
             let sentiment, positiveness, category, emotion
 
             // ==== SENTIMENT ANALYSIS ====
@@ -285,27 +389,9 @@ function App() {
 
     }
 
-    recognition.onresult = (event) => {
-
-        if (recording) {
-            let interim_transcript = "";
-
-            for (let i = event.resultIndex; i < event.results.length; ++i) {
-                if (event.results[i].isFinal) {
-                    final_transcript += event.results[i][0].transcript + '.';
-                } else {
-                    interim_transcript += event.results[i][0].transcript;
-                }
-
-            }
-            setTranscript(interim_transcript)
-            setFinalTranscript(final_transcript)
-        }
-
-    }
 
     const renderButton = () => {
-      
+
         if (!showBtn) {
             return (
                 <ButtonGroup spacing={"10"} className='hidden'
@@ -320,9 +406,9 @@ function App() {
                         height={"60px"}
                         fontSize={"1.5rem"}
                     >
-                        
-                            Record
-                        
+
+                        Record
+
                     </Button>
 
                     <Button
@@ -334,54 +420,53 @@ function App() {
                         height={"60px"}
                         fontSize={"1.5rem"}
                         onClick={stopSpeech}
-                        
-                        
+
+
                     >
-                          
-                          Stop
-                        
+
+                        Stop
+
                     </Button>
                 </ButtonGroup>
 
 
             )
-        }
-        else{
-          return(
-            <ButtonGroup spacing={"10"} className='fade-in'
-            >
-                <Button
-                    colorScheme="green"
-                    variant={"solid"}
-                    padding={"10px"}
-                    onClick={renderSpeech}
-                    rightIcon={<MdFiberManualRecord/>}
-                    width={"150px"}
-                    height={"60px"}
-                    fontSize={"1.5rem"}
+        } else {
+            return (
+                <ButtonGroup spacing={"10"} className='fade-in'
                 >
-                    
-                        Record
-                    
-                </Button>
+                    <Button
+                        colorScheme="green"
+                        variant={"solid"}
+                        padding={"10px"}
+                        onClick={renderSpeech}
+                        rightIcon={<MdFiberManualRecord/>}
+                        width={"150px"}
+                        height={"60px"}
+                        fontSize={"1.5rem"}
+                    >
 
-                <Button
-                    colorScheme={"red"}
-                    padding={"10px"}
-                    variant={"solid"}
-                    rightIcon={<MdStopCircle/>}
-                    width={"150px"}
-                    height={"60px"}
-                    fontSize={"1.5rem"}
-                    onClick={stopSpeech}
-                    // onClick={handleBackClick}
-                >
-                       
-                      Stop
-                   
-                </Button>
-            </ButtonGroup>
-          )
+                        Record
+
+                    </Button>
+
+                    <Button
+                        colorScheme={"red"}
+                        padding={"10px"}
+                        variant={"solid"}
+                        rightIcon={<MdStopCircle/>}
+                        width={"150px"}
+                        height={"60px"}
+                        fontSize={"1.5rem"}
+                        onClick={stopSpeech}
+                        // onClick={handleBackClick}
+                    >
+
+                        Stop
+
+                    </Button>
+                </ButtonGroup>
+            )
         }
 
     }
@@ -429,12 +514,24 @@ function App() {
                                 {renderButton()}
 
                                 {/*<span id="final" className="text-black">transcript</span>*/}
-                                <span id="interim"
-                                      className="text-secondary">
-                                        <ReactRevealText show={show}>
-                                               {transcript ? transcript : '...'}
-                                            </ReactRevealText>
-                                    </span>
+
+                                <Text width="95%" fontSize='2xl'>
+                                    <ReactRevealText show={show}>
+                                        {tip ? tip : '...'}
+                                    </ReactRevealText>
+                                </Text>
+
+                                <Text width="95%" fontSize='md'>
+                                    <ReactRevealText show={show}>
+                                        {transcript.toLowerCase() ? transcript.toLowerCase(): '...'}
+                                    </ReactRevealText>
+                                </Text>
+                                {/*<span id="interim"*/}
+                                {/*      className="text-secondary">*/}
+                                {/*        <ReactRevealText show={show}>*/}
+                                {/*               {tip ? tip : '...'}*/}
+                                {/*            </ReactRevealText>*/}
+                                {/*    </span>*/}
                             </Flex>
 
 
