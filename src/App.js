@@ -269,7 +269,7 @@ function App() {
         }
         else{
           return(
-            <ButtonGroup spacing={"10"}
+            <ButtonGroup spacing={"10"} className='fade-in'
             >
                 <Button
                     colorScheme="green"
