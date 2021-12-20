@@ -34,6 +34,12 @@ let pid = ''
 
 function App() {
 
+    const secondPageRef = useRef()
+
+    function handleBackClick(){
+      secondPageRef.current.scrollIntoView({ behavior: 'smooth' })
+    }
+
     let SpeechRecognition = window.webkitSpeechRecognition || window.SpeechRecognition
     let recognition = new SpeechRecognition()
 
@@ -301,9 +307,10 @@ function App() {
     }
 
     const renderButton = () => {
-        if (showBtn) {
+      
+        if (!showBtn) {
             return (
-                <ButtonGroup spacing={"10"}
+                <ButtonGroup spacing={"10"} className='hidden'
                 >
                     <Button
                         colorScheme="green"
@@ -315,9 +322,9 @@ function App() {
                         height={"60px"}
                         fontSize={"1.5rem"}
                     >
-                        <ReactRevealText show={show}>
+                        
                             Record
-                        </ReactRevealText>
+                        
                     </Button>
 
                     <Button
@@ -329,15 +336,54 @@ function App() {
                         height={"60px"}
                         fontSize={"1.5rem"}
                         onClick={stopSpeech}
+                        
+                        
                     >
-                        <ReactRevealText show={show}>
-                            Stop
-                        </ReactRevealText>
+                          
+                          Stop
+                        
                     </Button>
                 </ButtonGroup>
 
 
             )
+        }
+        else{
+          return(
+            <ButtonGroup spacing={"10"} className='fade-in'
+            >
+                <Button
+                    colorScheme="green"
+                    variant={"solid"}
+                    padding={"10px"}
+                    onClick={renderSpeech}
+                    rightIcon={<MdFiberManualRecord/>}
+                    width={"150px"}
+                    height={"60px"}
+                    fontSize={"1.5rem"}
+                >
+                    
+                        Record
+                    
+                </Button>
+
+                <Button
+                    colorScheme={"red"}
+                    padding={"10px"}
+                    variant={"solid"}
+                    rightIcon={<MdStopCircle/>}
+                    width={"150px"}
+                    height={"60px"}
+                    fontSize={"1.5rem"}
+                    onClick={stopSpeech}
+                    onClick={handleBackClick}
+                >
+                       
+                      Stop
+                   
+                </Button>
+            </ButtonGroup>
+          )
         }
 
     }
@@ -377,7 +423,6 @@ function App() {
                                             <ReactRevealText show={show}>
                                                 Hello, this is a safe place to tell your story
                                             </ReactRevealText>
-
                                         </Heading>
                                     </Flex>
 
@@ -404,9 +449,11 @@ function App() {
                             //border={"2px solid lightblue"}
                         >
                             <Flex
-
                                 width={"100%"}
-                                height={"75%"}
+                                height={"100vh"}
+                                color={"white"}
+                                //border={"2px solid lightblue"}
+                                ref={secondPageRef}
                                 flexDirection={"column"}
                                 alignItems={"center"}
                                 justifyContent={"space-between"}
