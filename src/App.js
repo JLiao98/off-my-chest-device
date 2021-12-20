@@ -400,7 +400,7 @@ function App() {
                             width={"100vw"}
                             height={"100vh"}
                             color={"white"}
-                            fontSize={"2rem"}
+                            fontSize={"1.5rem"}
                         >
                             <Flex
                                 flexDirection={"column"}
@@ -412,12 +412,12 @@ function App() {
                                 <Box>
                                     <Flex flexDirection={"column"} justifyContent={"center"} alignItems={"center"}>
 
-                                        <Heading as={"h1"} size={"3xl"} mb={4}>
+                                        <Heading as={"h1"} fontSize={"48px"} mb={4}>
                                             <ReactRevealText show={show}>
                                                 Off Your Chest
                                             </ReactRevealText>
                                         </Heading>
-                                        <Heading as={"h1"} size={"lg"}>
+                                        <Heading as={"h2"} fontSize={"28px"} fontWeight={"normal"}>
                                             <ReactRevealText show={show}>
                                                 Hello, this is a safe place to tell your story
                                             </ReactRevealText>
