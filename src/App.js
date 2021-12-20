@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react';
+import React, {useEffect, useRef} from 'react';
 import ReactDOM from 'react-dom';
 import {
     Flex, Box, Center, Button, ButtonGroup, Stack, Heading, Text,
@@ -65,6 +65,12 @@ function nlu(params, callback = console.log) {
 }
 
 function App() {
+
+    const secondPageRef = useRef()
+
+    function handleBackClick(){
+      secondPageRef.current.scrollIntoView({ behavior: 'smooth' })
+    }
 
     let SpeechRecognition = window.webkitSpeechRecognition || window.SpeechRecognition
     let recognition = new SpeechRecognition()
@@ -229,6 +235,7 @@ function App() {
     }
 
     const renderButton = () => {
+      
         if (!showBtn) {
             return (
                 <ButtonGroup spacing={"10"} className='hidden'
@@ -243,9 +250,9 @@ function App() {
                         height={"60px"}
                         fontSize={"1.5rem"}
                     >
-                        <ReactRevealText show={show}>
+                        
                             Record
-                        </ReactRevealText>
+                        
                     </Button>
 
                     <Button
@@ -257,10 +264,12 @@ function App() {
                         height={"60px"}
                         fontSize={"1.5rem"}
                         onClick={stopSpeech}
+                        
+                        
                     >
-                        <ReactRevealText show={show}>   
+                          
                           Stop
-                        </ReactRevealText>
+                        
                     </Button>
                 </ButtonGroup>
 
@@ -281,9 +290,9 @@ function App() {
                     height={"60px"}
                     fontSize={"1.5rem"}
                 >
-                    <ReactRevealText show={show}>
+                    
                         Record
-                    </ReactRevealText>
+                    
                 </Button>
 
                 <Button
@@ -295,10 +304,11 @@ function App() {
                     height={"60px"}
                     fontSize={"1.5rem"}
                     onClick={stopSpeech}
+                    onClick={handleBackClick}
                 >
-                    <ReactRevealText show={show}>   
+                       
                       Stop
-                    </ReactRevealText>
+                   
                 </Button>
             </ButtonGroup>
           )
@@ -373,7 +383,7 @@ function App() {
                                 height={"100vh"}
                                 color={"white"}
                                 //border={"2px solid lightblue"}
-                                id="pg2"
+                                ref={secondPageRef}
                             >
                                 <Flex
 
@@ -386,7 +396,7 @@ function App() {
 
                                     <Box>
                                         <Flex flexDirection={"column"} justifyContent={"center"} alignItems={"center"}>
-                                            <Heading as={"h1"} size={"2xl"} mb={4}>Analyze Text</Heading>
+                                            <Heading as={"h1"} size={"2xl"} mb={6}>Analyze Text</Heading>
                                             <Text width="100%" fontSize='2xl'>Utilize NLP to analyze the topics and
                                                 emotions that the passage entails</Text>
                                         </Flex>
