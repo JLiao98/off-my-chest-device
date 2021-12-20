@@ -17,7 +17,6 @@ import {
 import './App.css';
 import './utils/language'
 import {useState} from "react";
-import {ChakraProvider} from '@chakra-ui/react'
 import {MdFiberManualRecord, MdStopCircle, MdStop, MdLaunch} from "react-icons/md"
 import {addPost, uploadAudio} from "./utils/firebase";
 import {nanoid} from "nanoid";
@@ -26,21 +25,21 @@ import ReactRevealText from "react-reveal-text/lib/ReactRevealText";
 import SpeechRecognition, {useSpeechRecognition} from 'react-speech-recognition'
 import {createSpeechlySpeechRecognition} from '@speechly/speech-recognition-polyfill';
 
-const appId = 'fbd8ec5c-1d7b-4e0c-a9b0-f3844f907dbf';
-const SpeechlySpeechRecognition = createSpeechlySpeechRecognition(appId);
-SpeechRecognition.applyPolyfill(SpeechlySpeechRecognition);
+const appId = 'fbd8ec5c-1d7b-4e0c-a9b0-f3844f907dbf'
+const SpeechlySpeechRecognition = createSpeechlySpeechRecognition(appId)
+SpeechRecognition.applyPolyfill(SpeechlySpeechRecognition)
 
 
 let final_transcript = ''
-// let recording = false
 let chunks = []
 let mediaRecorder
 let audio_url = ''
 let response
 let pid = ''
 
-
 function App() {
+
+
     // let SpeechRecognition = window.webkitSpeechRecognition || window.SpeechRecognition
     // let recognition = new SpeechRecognition()
 
@@ -122,7 +121,6 @@ function App() {
     // recognition.continuous = true;
     // recognition.interimResults = true;
     //
-    // console.log(recognition)
 
     const {
         transcript,
@@ -154,7 +152,7 @@ function App() {
         }, 1500)
         setTimeout(() => {
             setShowBtn(true)
-        }, 3500)
+        }, 2500)
     }, []);
 
     const renderSpeech = () => {
@@ -167,7 +165,7 @@ function App() {
         final_transcript = ''
         setFinalTranscript(final_transcript)
         setTip("I'm listening to your story...")
-        console.log("start")
+
         startListening()
 
         if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
@@ -178,29 +176,23 @@ function App() {
                     {
                         audio: true
                     }
-                )
+                ).then(function (stream) {
+                mediaRecorder = new MediaRecorder(stream)
 
-                // Success callback
-                .then(function (stream) {
-                    mediaRecorder = new MediaRecorder(stream);
+                mediaRecorder.onerror = (e) => console.log(e)
+                mediaRecorder.onstop = function (e) {
+                    console.log("recorder stopped")
+                }
+                mediaRecorder.ondataavailable = function (e) {
+                    chunks.push(e.data);
+                }
+                mediaRecorder.start();
+                console.log("recorder started")
 
-                    mediaRecorder.start();
-                    console.log(mediaRecorder.state);
-                    console.log("recorder started");
 
-                    mediaRecorder.onstop = function (e) {
-                        console.log("recorder stopped");
-                    };
-
-                    mediaRecorder.ondataavailable = function (e) {
-                        chunks.push(e.data);
-                    };
-                })
-
-                // Error callback
-                .catch(function (err) {
-                    console.log("The following getUserMedia error occurred: " + err);
-                });
+            }).catch(function (err) {
+                console.log("The following getUserMedia error occurred: " + err);
+            });
         } else {
             console.log("getUserMedia not supported on your browser!");
         }
@@ -215,8 +207,7 @@ function App() {
         stopListening()
         mediaRecorder.stop()
         setTip("You have stopped the recording...")
-        console.log(mediaRecorder.state);
-        console.log("recorder stopped");
+        console.log("recorder stopped")
         secondPageRef.current.scrollIntoView({behavior: 'smooth'})
     }
 
@@ -292,11 +283,11 @@ function App() {
                 }
             }
 
-            const blob = new Blob(chunks, {type: "audio/ogg; codecs=opus"})
+            const blob = new Blob(chunks, {type: 'audio/ogg'})
+            console.log(blob)
 
             pid = nanoid()
 
-            console.log(category.label)
             uploadAudio(category.label, pid, blob).then(url => {
                 audio_url = url
                 addPost(pid, audio_url, final_transcript, level1, level2, level3, level4, level5, response).then(r => {
@@ -485,7 +476,7 @@ function App() {
                             width={"100vw"}
                             height={"100vh"}
                             color={"white"}
-                            fontSize={"2rem"}
+                            fontSize={"1.5rem"}
                         >
                             <Flex
                                 flexDirection={"column"}
@@ -494,44 +485,39 @@ function App() {
                                 height={"100%"}
                                 width={"100%"}
                             >
-                                <Box>
-                                    <Flex flexDirection={"column"} justifyContent={"center"} alignItems={"center"}>
+                                {/*<Box>*/}
+                                    <Flex flexDirection={"column"} justifyContent={"space-evenly"} alignItems={"center"}>
 
-                                        <Heading as={"h1"} size={"3xl"} mb={4}>
+                                        <Heading as={"h1"} fontSize={"52px"} mb={4}>
                                             <ReactRevealText show={show}>
-                                                Off Your Chest
+                                                Off My Chest
                                             </ReactRevealText>
                                         </Heading>
-                                        <Heading as={"h1"} size={"lg"}>
+                                        <Heading as={"h2"} fontSize={"28px"} fontWeight={"normal"}>
                                             <ReactRevealText show={show}>
                                                 Hello, this is a safe place to tell your story
                                             </ReactRevealText>
                                         </Heading>
                                     </Flex>
 
-                                </Box>
+                                {/*</Box>*/}
 
                                 {renderButton()}
 
                                 {/*<span id="final" className="text-black">transcript</span>*/}
 
-                                <Text width="95%" fontSize='2xl'>
+                                <Heading as={"h1"} size={"md"} fontWeight={"normal"}>
                                     <ReactRevealText show={show}>
                                         {tip ? tip : '...'}
                                     </ReactRevealText>
-                                </Text>
+                                </Heading>
 
-                                <Text width="95%" fontSize='md'>
+                                <Heading as={"h1"} size={"sm"} fontWeight={"normal"}>
                                     <ReactRevealText show={show}>
-                                        {transcript.toLowerCase() ? transcript.toLowerCase(): '...'}
+                                        {transcript.toLowerCase() ? transcript.toLowerCase() : '...'}
                                     </ReactRevealText>
-                                </Text>
-                                {/*<span id="interim"*/}
-                                {/*      className="text-secondary">*/}
-                                {/*        <ReactRevealText show={show}>*/}
-                                {/*               {tip ? tip : '...'}*/}
-                                {/*            </ReactRevealText>*/}
-                                {/*    </span>*/}
+                                </Heading>
+
                             </Flex>
 
 
